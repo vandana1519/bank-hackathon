@@ -11,36 +11,50 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.hackathon.bankservice.dto.GenerateTokenDto;
 import com.hackathon.bankservice.exception.CustomerNotFoundException;
+import com.hackathon.bankservice.exception.InvalidTokenException;
 import com.hackathon.bankservice.service.BankService;
 
 @Validated
 @RestController
 public class BankController {
-	
+
 	@Autowired
 	private BankService bankService;
 
 	@PostMapping("/generateToken")
-	public ResponseEntity generateToken(@RequestParam Long customerId,@RequestParam Long serviceId) {
+	public ResponseEntity generateToken(@RequestParam Long customerId, @RequestParam Long serviceId)
+			throws CustomerNotFoundException {
 		GenerateTokenDto generateTokenDto = null;
+
 		try {
 			generateTokenDto = bankService.generateToken(customerId, serviceId);
 		} catch (CustomerNotFoundException e) {
-			return new ResponseEntity<>(e.getMessage(),HttpStatus.EXPECTATION_FAILED);
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.EXPECTATION_FAILED);
 		}
-		return new ResponseEntity<>(generateTokenDto,HttpStatus.CREATED);
-	}
-	
-	@PostMapping("/service")
-	public ResponseEntity<String> availService(@RequestParam Long tokenId) {
-		
-		return new ResponseEntity<>(bankService.availService(tokenId),HttpStatus.OK);
-	}
-	
-	@PutMapping("/rating")
-	public ResponseEntity<String> receiveRating(@RequestParam Long tokenId, @RequestParam Long ratingId) {
-		
-		return new ResponseEntity<>(bankService.receiveRating(tokenId, ratingId),HttpStatus.ACCEPTED);
+		return new ResponseEntity<GenerateTokenDto>(generateTokenDto, HttpStatus.CREATED);
 	}
 
+	@PostMapping("/service")
+	public ResponseEntity<String> availService(@RequestParam Long tokenId) throws InvalidTokenException {
+		String availServiceResponse = "";
+		try {
+			availServiceResponse = bankService.availService(tokenId);
+		} catch (InvalidTokenException e) {
+
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.EXPECTATION_FAILED);
+		}
+		return new ResponseEntity<>(availServiceResponse, HttpStatus.OK);
+	}
+
+	@PutMapping("/rating")
+	public ResponseEntity receiveRating(@RequestParam Long tokenId, @RequestParam Long ratingId) {
+		String ratingResponse = "";
+		try {
+			ratingResponse = bankService.receiveRating(tokenId, ratingId);
+		} catch (InvalidTokenException e) {
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.EXPECTATION_FAILED);
+		}
+		return new ResponseEntity<>(ratingResponse, HttpStatus.ACCEPTED);
+
+	}
 }
