@@ -1,7 +1,6 @@
 package com.hackathon.bankservice.service.impl;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,30 +43,26 @@ public class BankServiceImpl implements BankService {
 	@Override
 	public GenerateTokenDto generateToken(Long customerId, Long serviceId) throws CustomerNotFoundException {
 		GenerateTokenDto generateTokenDto = new GenerateTokenDto();
+		TokenDetail token = new TokenDetail();
 		Customer customer = customerRepository.findByCustomerId(customerId);
 
 		if (customer == null) {
-			throw new CustomerNotFoundException("Customer not Registered!!!");
+			throw new CustomerNotFoundException("Customer not registered with the bank!!!");
 		}
 
 		Services service = serviceRepository.findByServiceId(serviceId);
 		Counter counter = counterRepository.getCounter(serviceId);
-
-		if (customer != null) {
-
-			TokenDetail token = new TokenDetail();
-			token.setCreatedAt(LocalDateTime.now());
-			token.setStatus(AppConstants.NEW);
-			token.setRating(null);
-			token.setService(service);
-			token.setCustomer(customer);
-			token.setCounter(counter);
-			token.setUpdatedAt(LocalDateTime.now());
-			TokenDetail generatedToken = tokenRepository.save(token);
-			tokenRepository.updateTokenStatus(token.getStatus(), generatedToken.getTokenId());
-			generateTokenDto.setCounterId(counter.getCounterId());
-			generateTokenDto.setTokenId(generatedToken.getTokenId());
-		}
+		token.setCreatedAt(LocalDateTime.now());
+		token.setStatus(AppConstants.NEW);
+		token.setRating(null);
+		token.setService(service);
+		token.setCustomer(customer);
+		token.setCounter(counter);
+		token.setUpdatedAt(LocalDateTime.now());
+		token = tokenRepository.save(token);
+		tokenRepository.updateTokenStatus(token.getStatus(), token.getTokenId());
+		generateTokenDto.setCounterId(counter.getCounterId());
+		generateTokenDto.setTokenId(token.getTokenId());
 
 		return generateTokenDto;
 	}
@@ -113,15 +108,12 @@ public class BankServiceImpl implements BankService {
 		if (tokenDetail == null) {
 			throw new InvalidTokenException("Invalid Token.");
 		}
-		if (tokenDetail != null) {
-			if (tokenDetail.getStatus().equals(AppConstants.CLOSED)) {
-				Rating rating = ratingRepository.findByRatingId(ratingId);
-				// tokenDetail.setRating(rating);
-				tokenRepository.updateTokenRating(rating.getRatingId(), tokenId);
-				response = "Thank you for your valuable feedback!!";
-			} else {
-				response = "Token is not closed yet";
-			}
+		if (tokenDetail.getStatus().equals(AppConstants.CLOSED)) {
+			Rating rating = ratingRepository.findByRatingId(ratingId);
+			tokenRepository.updateTokenRating(rating.getRatingId(), tokenId);
+			response = "Thank you for your valuable feedback!!";
+		} else {
+			response = "Token is not closed yet";
 		}
 		return response;
 	}

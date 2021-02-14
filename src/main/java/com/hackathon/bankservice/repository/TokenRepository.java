@@ -11,15 +11,15 @@ import org.springframework.transaction.annotation.Transactional;
 import com.hackathon.bankservice.entity.TokenDetail;
 
 @Repository
-public interface TokenRepository extends JpaRepository<TokenDetail, Long> {
+public interface TokenRepository extends JpaRepository<TokenDetail,Long> {
 
 	public TokenDetail findByTokenId(Long tokenId);
-
+	
 	@Modifying
 	@Transactional
-	@Query(value = "UPDATE Token t set t.status = :status WHERE t.token_id = :tokenId", nativeQuery = true)
+	@Query(value = "UPDATE Token t set t.status = :status WHERE t.token_id = :tokenId", nativeQuery=true)
 	void updateTokenStatus(String status, Long tokenId);
-
+	
 	@Query(value = "Select token_id from Token t where t.service_id= :serviceId and t.status='NEW'", nativeQuery = true)
 	public List<Long> getTokenIdList(Long serviceId);
 	

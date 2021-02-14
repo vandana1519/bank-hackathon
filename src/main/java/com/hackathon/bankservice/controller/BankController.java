@@ -17,14 +17,13 @@ import com.hackathon.bankservice.service.BankService;
 @Validated
 @RestController
 public class BankController {
-
+	
 	@Autowired
 	private BankService bankService;
 
 	@PostMapping("/generateToken")
-	public ResponseEntity generateToken(@RequestParam Long customerId, @RequestParam Long serviceId)
-			throws CustomerNotFoundException {
-		GenerateTokenDto generateTokenDto = null;
+	public ResponseEntity generateToken(@RequestParam Long customerId, @RequestParam Long serviceId){
+		GenerateTokenDto generateTokenDto;
 
 		try {
 			generateTokenDto = bankService.generateToken(customerId, serviceId);
@@ -35,8 +34,8 @@ public class BankController {
 	}
 
 	@PostMapping("/service")
-	public ResponseEntity<String> availService(@RequestParam Long tokenId) throws InvalidTokenException {
-		String availServiceResponse = "";
+	public ResponseEntity<String> availService(@RequestParam Long tokenId){
+		String availServiceResponse;
 		try {
 			availServiceResponse = bankService.availService(tokenId);
 		} catch (InvalidTokenException e) {
@@ -47,8 +46,8 @@ public class BankController {
 	}
 
 	@PutMapping("/rating")
-	public ResponseEntity receiveRating(@RequestParam Long tokenId, @RequestParam Long ratingId) {
-		String ratingResponse = "";
+	public ResponseEntity<String> receiveRating(@RequestParam Long tokenId, @RequestParam Long ratingId) {
+		String ratingResponse;
 		try {
 			ratingResponse = bankService.receiveRating(tokenId, ratingId);
 		} catch (InvalidTokenException e) {

@@ -5,13 +5,6 @@ public class GenerateTokenDto {
 	private Long tokenId;
 	private Long counterId;
 	
-	public GenerateTokenDto() {}
-	
-	public GenerateTokenDto(Long tokenId, Long counterId) {
-		super();
-		this.tokenId = tokenId;
-		this.counterId = counterId;
-	}
 	public Long getTokenId() {
 		return tokenId;
 	}
@@ -24,10 +17,5 @@ public class GenerateTokenDto {
 	public void setCounterId(Long counterId) {
 		this.counterId = counterId;
 	}
-
-	@Override
-	public String toString() {
-		return "GenerateTokenDto [tokenId=" + tokenId + ", counterId=" + counterId + "]";
-	}	
 	
 }

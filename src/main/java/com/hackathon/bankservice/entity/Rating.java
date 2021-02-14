@@ -22,13 +22,6 @@ public class Rating {
 	@JoinColumn(name = "token_id", referencedColumnName = "tokenId")
 	private TokenDetail token;
 
-	public Rating() {}
-	
-	public Rating(Long ratingId, String ratingDesc) {
-		super();
-		this.ratingId = ratingId;
-		this.ratingDesc = ratingDesc;
-	}
 	public Long getRatingId() {
 		return ratingId;
 	}

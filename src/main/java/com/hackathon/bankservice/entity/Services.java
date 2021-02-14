@@ -15,13 +15,6 @@ public class Services {
 	private Long serviceId;
 	private String serviceName;
 	
-	public Services() {}
-	
-	public Services(Long serviceId, String serviceName) {
-		super();
-		this.serviceId = serviceId;
-		this.serviceName = serviceName;
-	}
 	public Long getServiceId() {
 		return serviceId;
 	}

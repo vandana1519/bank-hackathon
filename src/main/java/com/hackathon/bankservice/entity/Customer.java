@@ -23,15 +23,6 @@ public class Customer {
 	@JoinColumn(name = "token_id", referencedColumnName = "tokenId")
 	private TokenDetail token;
 	
-	public Customer() {}
-	
-	public Customer(Long customerId, String customerName, Long accountNumber) {
-		super();
-		this.customerId = customerId;
-		this.customerName = customerName;
-		this.accountNumber = accountNumber;
-	}
-
 	public Long getCustomerId() {
 		return customerId;
 	}

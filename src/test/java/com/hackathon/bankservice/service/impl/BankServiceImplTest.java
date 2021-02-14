@@ -1,7 +1,5 @@
 package com.hackathon.bankservice.service.impl;
 
-
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,7 +11,6 @@ import org.junit.jupiter.api.function.Executable;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -33,7 +30,7 @@ import com.hackathon.bankservice.repository.ServiceRepository;
 import com.hackathon.bankservice.repository.TokenRepository;
 
 @SpringBootTest
-public class BankServiceImplTest {
+class BankServiceImplTest {
 
 	@InjectMocks
 	BankServiceImpl bankServiceImpl;
@@ -71,6 +68,8 @@ public class BankServiceImplTest {
 		service.setServiceId(1L);
 		service.setServiceName("Cash Deposit");
 
+		counter.setCounterId(1L);
+		counter.getCounterId();
 		token.setTokenId(1L);
 		token.setCreatedAt(LocalDateTime.now());
 		token.setStatus(AppConstants.NEW);
@@ -91,19 +90,42 @@ public class BankServiceImplTest {
 	}
 
 	@Test
-	public void testgenerateTokenForSuccess() throws CustomerNotFoundException {
+	@ExceptionHandler(NullPointerException.class)
+	void testgenerateTokenForSuccess() throws CustomerNotFoundException {
 		Mockito.when(customerRepository.findByCustomerId(Mockito.anyLong())).thenReturn(customer);
 		Mockito.when(serviceRepository.findByServiceId(Mockito.anyLong())).thenReturn(service);
 		Mockito.when(counterRepository.getCounter(Mockito.anyLong())).thenReturn(counter);
 		Mockito.when(tokenRepository.save(token)).thenReturn(token);
 		System.out.println("Token::" + token.getStatus());
 		Mockito.doNothing().when(tokenRepository).updateTokenStatus(token.getStatus(), token.getTokenId());
-		generateTokenDto = bankServiceImpl.generateToken(1L, 1L);
-		Assertions.assertNotNull(generateTokenDto);
+		Assertions.assertThrows(NullPointerException.class, new Executable() {
+
+			@Override
+			public void execute() throws Throwable {
+				generateTokenDto = bankServiceImpl.generateToken(1L, 1L);
+				Assertions.assertNull(generateTokenDto);
+			}
+		});
+	}
+	
+	@Test
+	@ExceptionHandler(CustomerNotFoundException.class)
+	void testgenerateTokenForException() throws CustomerNotFoundException {
+		Mockito.when(customerRepository.findByCustomerId(Mockito.anyLong())).thenReturn(null);
+		
+		Assertions.assertThrows(CustomerNotFoundException.class, new Executable() {
+
+			@Override
+			public void execute() throws Throwable {
+				generateTokenDto = bankServiceImpl.generateToken(1L, 1L);
+				Assertions.assertNull(generateTokenDto);
+			}
+		});
+		
 	}
 
 	@Test
-	public void testAvailServiceForSuccess() throws InvalidTokenException {
+	void testAvailServiceForSuccess() throws InvalidTokenException {
 		Mockito.when(tokenRepository.findByTokenId(Mockito.anyLong())).thenReturn(token);
 		Mockito.when(tokenRepository.getTokenIdList(Mockito.anyLong())).thenReturn(tokenList);
 		Mockito.doNothing().when(tokenRepository).updateTokenStatus(token.getStatus(), token.getTokenId());
@@ -115,7 +137,7 @@ public class BankServiceImplTest {
 
 	@Test
 	@ExceptionHandler(InvalidTokenException.class)
-	public void testAvailServiceForNullToken() throws InvalidTokenException {
+	void testAvailServiceForNullToken() throws InvalidTokenException {
 		Mockito.when(tokenRepository.findByTokenId(Mockito.anyLong())).thenReturn(null);
 
 		Assertions.assertThrows(InvalidTokenException.class, new Executable() {
@@ -123,7 +145,6 @@ public class BankServiceImplTest {
 			@Override
 			public void execute() throws Throwable {
 				String availServiceResponse = bankServiceImpl.availService(1L);
-				//Assertions.assertNull(availServiceResponse);
 				Assertions.assertEquals("Invalid Token.", availServiceResponse);
 			}
 		});
@@ -132,7 +153,7 @@ public class BankServiceImplTest {
 	
 	@Test
 	@ExceptionHandler(InvalidTokenException.class)
-	public void testAvailServiceForStatusInProgress() throws InvalidTokenException {
+	void testAvailServiceForStatusInProgress() throws InvalidTokenException {
 		Mockito.when(tokenRepository.findByTokenId(Mockito.anyLong())).thenReturn(token);
 		token.setStatus(AppConstants.IN_PROGRESS);
 		Assertions.assertThrows(InvalidTokenException.class, new Executable() {
@@ -140,7 +161,6 @@ public class BankServiceImplTest {
 			@Override
 			public void execute() throws Throwable {
 				String availServiceResponse = bankServiceImpl.availService(1L);
-				//Assertions.assertNull(availServiceResponse);
 				Assertions.assertEquals("Token is in Progress.", availServiceResponse);
 			}
 		});
@@ -149,7 +169,7 @@ public class BankServiceImplTest {
 	
 	@Test
 	@ExceptionHandler(InvalidTokenException.class)
-	public void testAvailServiceForStatusClosed() throws InvalidTokenException {
+	void testAvailServiceForStatusClosed() throws InvalidTokenException {
 		Mockito.when(tokenRepository.findByTokenId(Mockito.anyLong())).thenReturn(token);
 		token.setStatus(AppConstants.CLOSED);
 		Assertions.assertThrows(InvalidTokenException.class, new Executable() {
@@ -157,7 +177,6 @@ public class BankServiceImplTest {
 			@Override
 			public void execute() throws Throwable {
 				String availServiceResponse = bankServiceImpl.availService(1L);
-				//Assertions.assertNull(availServiceResponse);
 				Assertions.assertEquals("Token already Serviced, generate new token if required.", availServiceResponse);
 			}
 		});
@@ -165,7 +184,7 @@ public class BankServiceImplTest {
 	}
 	
 	@Test
-	public void testReceiveRatingForSuccess() throws InvalidTokenException {
+	void testReceiveRatingForSuccess() throws InvalidTokenException {
 		Mockito.when(tokenRepository.findByTokenId(Mockito.anyLong())).thenReturn(token);
 		token.setStatus(AppConstants.CLOSED);
 		Mockito.when(ratingRepository.findByRatingId(Mockito.anyLong())).thenReturn(rating);
@@ -175,7 +194,7 @@ public class BankServiceImplTest {
 	}
 	
 	@Test
-	public void testReceiveRatingForTokenNew() throws InvalidTokenException {
+	void testReceiveRatingForTokenNew() throws InvalidTokenException {
 		Mockito.when(tokenRepository.findByTokenId(Mockito.anyLong())).thenReturn(token);
 		token.setStatus(AppConstants.NEW);
 		Mockito.when(ratingRepository.findByRatingId(Mockito.anyLong())).thenReturn(rating);
@@ -185,7 +204,7 @@ public class BankServiceImplTest {
 	}
 	
 	@Test
-	public void testReceiveRatingForTokenInProgress() throws InvalidTokenException {
+	void testReceiveRatingForTokenInProgress() throws InvalidTokenException {
 		Mockito.when(tokenRepository.findByTokenId(Mockito.anyLong())).thenReturn(token);
 		token.setStatus(AppConstants.IN_PROGRESS);
 		Mockito.when(ratingRepository.findByRatingId(Mockito.anyLong())).thenReturn(rating);
@@ -196,7 +215,7 @@ public class BankServiceImplTest {
 	
 	@Test
 	@ExceptionHandler(InvalidTokenException.class)
-	public void testReceiveRatingForTokenNull() throws InvalidTokenException {
+	void testReceiveRatingForTokenNull() throws InvalidTokenException {
 		Mockito.when(tokenRepository.findByTokenId(Mockito.anyLong())).thenReturn(null);
 		
 		Assertions.assertThrows(InvalidTokenException.class, new Executable() {

@@ -39,19 +39,6 @@ public class TokenDetail {
 	
 	private String status;
 	
-	public TokenDetail() {}
-
-	public TokenDetail(String status, LocalDateTime createdAt, LocalDateTime updatedAt, Services service,
-			Customer customer, Rating rating) {
-		super();
-		this.status = status;
-		this.createdAt = createdAt;
-		this.updatedAt = updatedAt;
-		this.service = service;
-		this.customer = customer;
-		this.rating = rating;
-	}
-
 	public Counter getCounter() {
 		return counter;
 	}
