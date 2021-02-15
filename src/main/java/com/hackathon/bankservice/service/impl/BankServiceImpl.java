@@ -51,6 +51,9 @@ public class BankServiceImpl implements BankService {
 		}
 
 		Services service = serviceRepository.findByServiceId(serviceId);
+		if (service == null) {
+			throw new CustomerNotFoundException("Sorry, selected service is not available. Please try another service!!");
+		}
 		Counter counter = counterRepository.getCounter(serviceId);
 		token.setCreatedAt(LocalDateTime.now());
 		token.setStatus(AppConstants.NEW);
